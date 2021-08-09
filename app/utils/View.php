@@ -25,9 +25,16 @@ class View {
         //variável com o conteúdo da view
         $content = self::getContentView($view);
 
+        //Variável com o array de chaves vinda do controler
         $keys = array_keys($args);
 
-        return $content;
+        //transforma chaves do array em variáveis da view {{nome_variável}}
+        $keys = array_map(function($item){
+            return "{{".$item."}}";
+        }, $keys);
+
+        //Retorna a página renderizada, substituindo as varivéis por seu conteúdo
+        return str_replace($keys, array_values($args), $content);
     }
 
 }
