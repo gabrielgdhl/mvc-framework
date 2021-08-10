@@ -2,10 +2,14 @@
 
 require __DIR__.'/vendor/autoload.php';
 
+use \App\Http\Router;
 use \App\Controller\Pages\Home;
 
-$obrequest = new \App\Http\Response(400, "Olá mundo");
+define('URL', 'http://localhost/mvc-framework');
 
-$obrequest->sendResponse();
-
+$ob = new Router(URL);
+echo "<pre>";
+print_r($ob);
+echo "</pre>";
+exit;
 echo Home::getHome();
