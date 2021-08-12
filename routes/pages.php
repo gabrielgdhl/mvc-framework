@@ -15,8 +15,8 @@ $obRouter->get('/sobre', [
     }
 ]); 
 
-$obRouter->get('/sobre', [
-    function(){
-        return new Response(200, Pages\Sobre::getSobre());
+$obRouter->get('/pagina/{id}/{acao}', [
+    function($id, $acao){
+        return new Response(200, "Página Dinâmica id:".$id.' - Ação: '.$acao);
     }
 ]); 

@@ -4,6 +4,7 @@ namespace App\Http;
 
 use \Closure;
 use \Exception;
+use \ReflectionFunction;
 
 class Router {
 
@@ -65,9 +66,23 @@ class Router {
             }
         }
 
+        $params['variables'] = [];
+
+        //REGEX para validação das variáveis vida na URI
+        $patternVariable = '/{(.*?)}/';
+
+        //procura variáveis nas rotas
+        if(preg_match_all($patternVariable, $route, $matches)){
+           $route = preg_replace($patternVariable, '(.*?)', $route);
+           $params['variables'] = $matches[1];
+        }
+
+       
+        
+
         //REGEX para padronizar URL
         $patternRoute ='/^'.str_replace('/', '\/', $route).'$/';
-
+        
         //Adiciona rota no objeto
         $this->routes[$patternRoute][$method] = $params;
     }
@@ -121,6 +136,14 @@ class Router {
              }
 
              $args = [];
+
+             //ReflectionFunction
+             $reflection = new ReflectionFunction($route['controller']);
+             foreach($reflection->getParameters() as $parameter){
+                 $name = $parameter->getName();
+                 $args[$name] = $route['variables'][$name] ?? "";
+             }
+
              return call_user_func_array($route['controller'], $args);
 
         }catch(Exception $err){
@@ -142,8 +165,17 @@ class Router {
 
         foreach($this->routes as $patternRoute => $methods){
             //Válida se URI está no padrão
-            if(preg_match($patternRoute, $uri)){
-                if($methods[$httpMethod]){
+            if(preg_match($patternRoute, $uri, $matches)){
+                if(isset($methods[$httpMethod])){
+                    unset($matches[0]);
+
+                    //chaves vindas da URL
+                    $keys = $methods[$httpMethod]['variables'];
+                    
+                    //variaveis processadas
+                    $methods[$httpMethod]['variables'] = array_combine($keys, $matches);
+                    $methods[$httpMethod]['variables']['request'] = $this->request;
+                    
                     return $methods[$httpMethod];
                 }
                 

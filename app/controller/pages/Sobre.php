@@ -8,7 +8,7 @@ use \App\Model\Entity\Organization;
 class Sobre extends Page {
 
     /**
-     * Método responsável por retornar a view da Home
+     * Método responsável por retornar a view Sobre
      * @return String
      */
     public static function getSobre(){

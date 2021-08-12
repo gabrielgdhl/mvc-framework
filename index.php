@@ -5,9 +5,10 @@ require __DIR__.'/vendor/autoload.php';
 use \App\Http\Router;
 use \App\Utils\View;
 
+//URL do projeto, verificar e trocar de acordo com sua url inicial
 define('URL', 'http://localhost/mvc-framework');
 
-//valor padrão das variávies
+//Variáveis iniciadas Globais
 View::init([
     'URL' => URL
 ]);
