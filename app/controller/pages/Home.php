@@ -15,9 +15,7 @@ class Home extends Page {
       $objOrganization = new Organization();
 
       $content =  View::render('pages/home', [
-                                                'name'        => $objOrganization->name,
-                                                'description' => $objOrganization->description,
-                                                'site'        => $objOrganization->site
+                                                'name' => $objOrganization->name
                                             ]);
       //retorna a view da página
       return parent::getPage('Framework - MVC', $content);

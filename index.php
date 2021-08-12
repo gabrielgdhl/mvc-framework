@@ -3,13 +3,22 @@
 require __DIR__.'/vendor/autoload.php';
 
 use \App\Http\Router;
-use \App\Controller\Pages\Home;
+use \App\Utils\View;
 
 define('URL', 'http://localhost/mvc-framework');
 
-$ob = new Router(URL);
-echo "<pre>";
-print_r($ob);
-echo "</pre>";
-exit;
-echo Home::getHome();
+//valor padrão das variávies
+View::init([
+    'URL' => URL
+]);
+
+//instância de Router
+$obRouter = new Router(URL);
+
+//Inclui a rota das páginas
+include __DIR__.'/routes/pages.php';
+
+
+//Executa a rota e envia a resposta para a tela
+$obRouter->run()->sendResponse();
+

@@ -3,7 +3,7 @@
 namespace App\Http;
 
 use \Closure;
-use NoRewindIterator;
+use \Exception;
 
 class Router {
 
@@ -65,7 +65,11 @@ class Router {
             }
         }
 
+        //REGEX para padronizar URL
         $patternRoute ='/^'.str_replace('/', '\/', $route).'$/';
+
+        //Adiciona rota no objeto
+        $this->routes[$patternRoute][$method] = $params;
     }
 
     /**
@@ -74,7 +78,94 @@ class Router {
      * @param array $params
      */
     public function get($route, $params = []){
+       $this->addRoute('GET', $route, $params);
+    }
+    
+    /**
+     * Método responsavel por definir uma rota de POST
+     * @param string $route
+     * @param array $params
+     */
+    public function post($route, $params = []){
+       $this->addRoute('POST', $route, $params);
+    }
 
+    /**
+     * Método responsavel por definir uma rota de PUT
+     * @param string $route
+     * @param array $params
+     */
+    public function put($route, $params = []){
+       $this->addRoute('PUT', $route, $params);
+    }
+    /**
+     * Método responsavel por definir uma rota de DELETE
+     * @param string $route
+     * @param array $params
+     */
+    public function delete($route, $params = []){
+       $this->addRoute('DELETE', $route, $params);
+    }
+
+    /**
+     * Método que executa a rota
+     *
+     * @return Response
+     */
+    public function run(){
+        try{
+             $route = $this->getRoute();
+
+             if(!isset($route['controller'])){
+                 throw new Exception("Problemas internos!", 500);
+             }
+
+             $args = [];
+             return call_user_func_array($route['controller'], $args);
+
+        }catch(Exception $err){
+            return new Response($err->getCode(), $err->getMessage());
+        }
+    }
+
+    /**
+     * Método que retorna a rota atual
+     *
+     * @return array
+     */
+    private function getRoute(){
+        //URI sem prefixo
+        $uri = $this->getUri();
+
+        //Método HTTP da rota
+        $httpMethod = $this->request->getHttpMethod();
+
+        foreach($this->routes as $patternRoute => $methods){
+            //Válida se URI está no padrão
+            if(preg_match($patternRoute, $uri)){
+                if($methods[$httpMethod]){
+                    return $methods[$httpMethod];
+                }
+                
+                throw new Exception("Método não permitido", 405);
+                
+            }
+        }
+
+        throw new Exception("URL não encontrada", 404);
+    }
+
+    /**
+     * Método que retorna URI
+     *
+     * @return string
+     */
+    private function getUri(){
+        $uri = $this->request->getUri();
+        $xuri = strlen($this->prefix)? explode($this->prefix, $uri) : [$uri];
+        
+        //retorna somente o final da URI retirando o prefixo
+        return end($xuri);
     }
 
 }
